@@ -2,7 +2,7 @@ build:
 	go build -o ./bin/main ./cmd
 
 dev:
-	air
+	go build -o ./tmp/main ./cmd && air
 
 run:
 	./bin/main

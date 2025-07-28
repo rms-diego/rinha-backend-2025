@@ -19,20 +19,24 @@ func NewConfig() error {
 		return err
 	}
 
-	e := env{
-		PORT:         os.Getenv("PORT"),
-		DATABASE_URL: os.Getenv("DATABASE_URL"),
-	}
-
 	switch {
-	case e.PORT == "":
+	case os.Getenv("PORT") == "":
 		return fmt.Errorf("environment variable 'PORT' is not set")
 
-	case e.DATABASE_URL == "":
-		return fmt.Errorf("environment variable 'DATABASE_URL' is not set")
+	case os.Getenv("DATABASE_USER") == "":
+		return fmt.Errorf("environment variable 'DATABASE_USER' is not set")
+
+	case os.Getenv("DATABASE_PASSWORD") == "":
+		return fmt.Errorf("environment variable 'DATABASE_PASSWORD' is not set")
+
+	case os.Getenv("DATABASE_HOST") == "":
+		return fmt.Errorf("environment variable 'DATABASE_HOST' is not set")
 
 	default:
-		Env = &e
+		Env = &env{
+			PORT:         os.Getenv("PORT"),
+			DATABASE_URL: fmt.Sprintf("postgres://%v:%v@%v:5432/rinha_backend_2025", os.Getenv("DATABASE_USER"), os.Getenv("DATABASE_PASSWORD"), os.Getenv("DATABASE_HOST")),
+		}
 		return nil
 	}
 }

@@ -19,7 +19,7 @@ WORKDIR /app
 COPY --from=builder /app/bin/main ./bin/main
 COPY .env .
 
-EXPOSE 8080
+# ENV GIN_MODE=release
 
 CMD ["./bin/main"]
 
