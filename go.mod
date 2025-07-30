@@ -3,7 +3,7 @@ module github.com/rms-diego/rinha-backend-2025
 go 1.24.4
 
 require (
-	github.com/doug-martin/goqu v5.0.0+incompatible
+	github.com/doug-martin/goqu v1.0.0
 	github.com/gin-gonic/gin v1.10.1
 	github.com/google/uuid v1.6.0
 	github.com/jackc/pgx/v5 v5.7.5
@@ -11,9 +11,9 @@ require (
 )
 
 require (
+	github.com/DATA-DOG/go-sqlmock v1.5.2 // indirect
 	github.com/bytedance/sonic v1.14.0 // indirect
 	github.com/bytedance/sonic/loader v0.3.0 // indirect
-	github.com/c2fo/testify v0.0.0-20150827203832-fba96363964a // indirect
 	github.com/cloudwego/base64x v0.1.5 // indirect
 	github.com/gabriel-vasile/mimetype v1.4.9 // indirect
 	github.com/gin-contrib/sse v1.1.0 // indirect
@@ -42,7 +42,5 @@ require (
 	golang.org/x/sys v0.34.0 // indirect
 	golang.org/x/text v0.27.0 // indirect
 	google.golang.org/protobuf v1.36.6 // indirect
-	gopkg.in/DATA-DOG/go-sqlmock.v1 v1.3.0 // indirect
-	gopkg.in/doug-martin/goqu.v5 v5.0.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
