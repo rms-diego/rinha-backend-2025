@@ -9,9 +9,10 @@ import (
 func Init(app *gin.Engine) {
 	INSTANCE_ID := uuid.New()
 
-	app.GET("/health", func(c *gin.Context) {
+	app.GET("/payments/service-health", func(c *gin.Context) {
 		c.JSON(200, gin.H{"message": "server is running", "instanceId": INSTANCE_ID})
 	})
 
-	app.POST("/payments", handlers.CreatePaymentHandler)
+	app.POST("/payments", handlers.CreatePayment)
+	app.GET("/payments-summary", handlers.PaymentsSummary)
 }

@@ -9,7 +9,7 @@ import (
 	"github.com/rms-diego/rinha-backend-2025/internal/validations"
 )
 
-func CreatePayment(message validations.CreatePaymentRequest) error {
+func CreatePayment(message validations.CreatePayment) error {
 	fmt.Println("Processing payment:", message)
 
 	_, err := database.Db.From("payments").Insert(goqu.Record{
@@ -23,4 +23,29 @@ func CreatePayment(message validations.CreatePaymentRequest) error {
 	}
 
 	return nil
+}
+
+func ListPaymentsSummary(from string, to string) (*validations.PaymentSummary, error) {
+	var summary validations.Summary
+
+	_, err := database.Db.
+		From("payments").
+		Select(
+			goqu.COUNT("requestedAt").As("TotalRequests"),
+			goqu.SUM("amount").As("TotalAmount"),
+		).
+		Where(goqu.I("requestedAt").In(from, to)).
+		ScanStruct(&summary)
+
+	if err != nil {
+		return nil, fmt.Errorf("erro ao executar query: %w", err)
+	}
+
+	return &validations.PaymentSummary{
+		Default: summary,
+		Fallback: validations.Summary{
+			TotalRequests: 0,
+			TotalAmount:   0,
+		},
+	}, nil
 }
