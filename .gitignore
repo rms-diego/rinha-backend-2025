@@ -35,3 +35,6 @@ go.work.sum
 tmp
 bin/*
 .local
+
+infra/PREVIA_RESULTADOS.md
+infra/previa-resultados+participantes-info.json
