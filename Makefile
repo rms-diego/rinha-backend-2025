@@ -4,5 +4,8 @@ build:
 dev:
 	air
 
+run-api:
+	go run ./cmd/main.go
+
 run:
 	./bin/main
