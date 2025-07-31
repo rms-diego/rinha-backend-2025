@@ -25,8 +25,6 @@ func NewPaymentService(database *goqu.Database) PaymentServiceInterface {
 }
 
 func (s *paymentService) CreatePayment(message validations.CreatePayment) error {
-	fmt.Println("Processing payment:", message)
-
 	_, err := database.Db.From("payments").Insert(goqu.Record{
 		"amount":         message.Amount,
 		"correlation_id": message.CorrelationId,

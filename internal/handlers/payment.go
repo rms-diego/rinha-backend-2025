@@ -1,8 +1,6 @@
 package handlers
 
 import (
-	"fmt"
-
 	"github.com/gin-gonic/gin"
 	"github.com/rms-diego/rinha-backend-2025/internal/service"
 	"github.com/rms-diego/rinha-backend-2025/internal/validations"
@@ -28,7 +26,6 @@ func (h *paymentHandler) CreatePayment(c *gin.Context) {
 	body := &validations.CreatePayment{}
 
 	if err := c.ShouldBindJSON(body); err != nil {
-		fmt.Println(err.Error())
 		c.JSON(400, gin.H{"error": err.Error()})
 		return
 	}

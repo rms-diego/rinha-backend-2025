@@ -10,14 +10,14 @@ COPY . .
 
 RUN go build -o ./bin/main ./cmd/api
 
-FROM golang:1.24-alpine AS runner
+FROM alpine AS runner
 
 WORKDIR /app
 
 COPY --from=builder /app/bin/main ./bin/main
 COPY .env .
 
-# ENV GIN_MODE=release
+ENV GIN_MODE=release
 
 CMD ["./bin/main"]
 

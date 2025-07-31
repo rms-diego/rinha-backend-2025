@@ -25,6 +25,6 @@ func main() {
 
 	app := gin.New()
 	routes.Init(app)
+	fmt.Println("Server is running 🚀")
 	app.Run(fmt.Sprintf(":%v", config.Env.PORT))
-	fmt.Println("Server running on port")
 }
