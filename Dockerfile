@@ -8,9 +8,7 @@ RUN go mod tidy
 
 COPY . .
 
-
-RUN cd /app && go build -o ./bin/main ./cmd
-
+RUN go build -o ./bin/main ./cmd/api
 
 FROM golang:1.24-alpine AS runner
 

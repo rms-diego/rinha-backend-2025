@@ -17,7 +17,7 @@ var Queue pubSub
 
 func NewPubSub() {
 	Queue = pubSub{
-		messages: make(chan validations.CreatePayment, 100),
+		messages: make(chan validations.CreatePayment, 100_000),
 	}
 }
 

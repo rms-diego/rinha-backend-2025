@@ -1,11 +1,11 @@
 build:
-	go build -o ./bin/main ./cmd
+	go build -o ./bin/main ./cmd/api
 
 dev:
 	air
 
 run-api:
-	go run ./cmd/main.go
+	go run ./cmd/api/main.go
 
 run:
 	./bin/main
