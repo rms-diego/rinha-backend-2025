@@ -12,7 +12,7 @@ import (
 	"github.com/rms-diego/rinha-backend-2025/pkg/pubsub"
 )
 
-const WORKERS_POOL = 2
+const WORKERS_POOL = 10
 
 func main() {
 	if err := config.NewConfig(); err != nil {

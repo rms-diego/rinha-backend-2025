@@ -45,11 +45,11 @@ services:
       - DATABASE_USER=${DATABASE_USER}
       - DATABASE_PASSWORD=${DATABASE_PASSWORD}
       - DATABASE_HOST=database
-      - PORT=${PORT}
+      - PORT=8080
     env_file:
       - .env
     ports:
-      - "8080:${PORT}"
+      - "8080:8080"
     depends_on:
       database:
         condition: service_healthy
@@ -67,11 +67,11 @@ services:
       - DATABASE_USER=${DATABASE_USER}
       - DATABASE_PASSWORD=${DATABASE_PASSWORD}
       - DATABASE_HOST=database
-      - PORT=${PORT}
+      - PORT=8081
     env_file:
       - .env
     ports:
-      - "8081:${PORT}"
+      - "8081:8081"
     depends_on:
       database:
         condition: service_healthy

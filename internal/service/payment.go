@@ -13,9 +13,9 @@ func CreatePayment(message validations.CreatePayment) error {
 	fmt.Println("Processing payment:", message)
 
 	_, err := database.Db.From("payments").Insert(goqu.Record{
-		"amount":        message.Amount,
-		"correlationId": message.CorrelationId,
-		"requestedAt":   time.Now(),
+		"amount":         message.Amount,
+		"correlation_id": message.CorrelationId,
+		"requested_at":   time.Now(),
 	}).Exec()
 
 	if err != nil {
@@ -31,10 +31,13 @@ func ListPaymentsSummary(from string, to string) (*validations.PaymentSummary, e
 	_, err := database.Db.
 		From("payments").
 		Select(
-			goqu.COUNT("requestedAt").As("TotalRequests"),
+			goqu.COUNT("requested_at").As("TotalRequests"),
 			goqu.SUM("amount").As("TotalAmount"),
 		).
-		Where(goqu.I("requestedAt").In(from, to)).
+		Where(
+			goqu.I("requested_at").Gte(from),
+			goqu.I("requested_at").Lte(to),
+		).
 		ScanStruct(&summary)
 
 	if err != nil {
