@@ -9,7 +9,22 @@ import (
 	"github.com/rms-diego/rinha-backend-2025/internal/validations"
 )
 
-func CreatePayment(message validations.CreatePayment) error {
+type PaymentServiceInterface interface {
+	CreatePayment(message validations.CreatePayment) error
+	ListPaymentsSummary(from string, to string) (*validations.PaymentSummary, error)
+}
+
+type paymentService struct {
+	database *goqu.Database
+}
+
+func NewPaymentService(database *goqu.Database) PaymentServiceInterface {
+	return &paymentService{
+		database: database,
+	}
+}
+
+func (s *paymentService) CreatePayment(message validations.CreatePayment) error {
 	fmt.Println("Processing payment:", message)
 
 	_, err := database.Db.From("payments").Insert(goqu.Record{
@@ -25,7 +40,7 @@ func CreatePayment(message validations.CreatePayment) error {
 	return nil
 }
 
-func ListPaymentsSummary(from string, to string) (*validations.PaymentSummary, error) {
+func (s *paymentService) ListPaymentsSummary(from string, to string) (*validations.PaymentSummary, error) {
 	var summary validations.Summary
 
 	_, err := database.Db.

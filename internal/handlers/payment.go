@@ -9,7 +9,22 @@ import (
 	"github.com/rms-diego/rinha-backend-2025/pkg/pubsub"
 )
 
-func CreatePayment(c *gin.Context) {
+type paymentHandlerInterface interface {
+	CreatePayment(c *gin.Context)
+	PaymentsSummary(c *gin.Context)
+}
+
+type paymentHandler struct {
+	service service.PaymentServiceInterface
+}
+
+func NewPaymentHandler(paymentService service.PaymentServiceInterface) paymentHandlerInterface {
+	return &paymentHandler{
+		service: paymentService,
+	}
+}
+
+func (h *paymentHandler) CreatePayment(c *gin.Context) {
 	body := &validations.CreatePayment{}
 
 	if err := c.ShouldBindJSON(body); err != nil {
@@ -23,7 +38,7 @@ func CreatePayment(c *gin.Context) {
 	c.JSON(204, nil)
 }
 
-func PaymentsSummary(c *gin.Context) {
+func (h *paymentHandler) PaymentsSummary(c *gin.Context) {
 	f := c.Query("from")
 	t := c.Query("to")
 
@@ -32,7 +47,7 @@ func PaymentsSummary(c *gin.Context) {
 		return
 	}
 
-	result, err := service.ListPaymentsSummary(f, t)
+	result, err := h.service.ListPaymentsSummary(f, t)
 	if err != nil {
 		c.JSON(500, gin.H{"error": err.Error()})
 		return
