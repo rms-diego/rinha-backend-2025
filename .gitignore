@@ -36,5 +36,6 @@ tmp
 bin
 .local
 
-infra/PREVIA_RESULTADOS.md
-infra/previa-resultados+participantes-info.json
+.infra/rinha-test
+.infra/PREVIA_RESULTADOS.md
+.infra/previa-resultados+participantes-info.json
