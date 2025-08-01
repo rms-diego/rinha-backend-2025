@@ -2,6 +2,7 @@ package service
 
 import (
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/doug-martin/goqu"
@@ -25,13 +26,16 @@ func NewPaymentService(database *goqu.Database) PaymentServiceInterface {
 }
 
 func (s *paymentService) CreatePayment(message validations.CreatePayment) error {
-	_, err := database.Db.From("payments").Insert(goqu.Record{
-		"amount":         message.Amount,
-		"correlation_id": message.CorrelationId,
-		"requested_at":   time.Now(),
-	}).Exec()
+	sql := database.Db.From("payments").Insert(goqu.Ex{
+		"amount":        message.Amount,
+		"correlationId": message.CorrelationId,
+		"requested_at":  time.Now(),
+	}).Sql
 
-	if err != nil {
+	// Remove double quotes from the SQL string to avoid syntax errors
+	cleanSQL := sanitizeSQL(sql)
+
+	if _, err := database.Db.Exec(cleanSQL); err != nil {
 		return err
 	}
 
@@ -44,8 +48,8 @@ func (s *paymentService) ListPaymentsSummary(from string, to string) (*validatio
 	_, err := database.Db.
 		From("payments").
 		Select(
-			goqu.COUNT("requested_at").As("TotalRequests"),
-			goqu.SUM("amount").As("TotalAmount"),
+			goqu.COUNT(goqu.I("correlationid")).As("TotalRequests"),
+			goqu.COALESCE(goqu.SUM(goqu.I("amount")), 0).As("TotalAmount"),
 		).
 		Where(
 			goqu.I("requested_at").Gte(from),
@@ -64,4 +68,8 @@ func (s *paymentService) ListPaymentsSummary(from string, to string) (*validatio
 			TotalAmount:   0,
 		},
 	}, nil
+}
+
+func sanitizeSQL(sql string) string {
+	return strings.ReplaceAll(sql, `"`, "")
 }

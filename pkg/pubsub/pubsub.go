@@ -34,7 +34,6 @@ func (p *pubSub) Subscribe(handler func(message validations.CreatePayment) error
 		fmt.Println("Processing message: ", msg.CorrelationId)
 
 		if err := handler(msg); err != nil {
-			Queue.Publish(msg) // Re-publish the message if handler fails
 			continue
 		}
 	}
