@@ -13,13 +13,12 @@ type paymentHandlerInterface interface {
 }
 
 type paymentHandler struct {
+	pubsub  pubsub.PubSub
 	service service.PaymentServiceInterface
 }
 
-func NewPaymentHandler(paymentService service.PaymentServiceInterface) paymentHandlerInterface {
-	return &paymentHandler{
-		service: paymentService,
-	}
+func NewPaymentHandler(service service.PaymentServiceInterface, pubsub *pubsub.PubSub) paymentHandlerInterface {
+	return &paymentHandler{service: service, pubsub: *pubsub}
 }
 
 func (h *paymentHandler) CreatePayment(c *gin.Context) {
@@ -30,7 +29,8 @@ func (h *paymentHandler) CreatePayment(c *gin.Context) {
 		return
 	}
 
-	go pubsub.Queue.Publish(*body)
+	m := validations.NewMessage(*body)
+	go h.pubsub.Publish(m, pubsub.DEFAULT_QUEUE)
 
 	c.JSON(204, nil)
 }

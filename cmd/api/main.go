@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	"github.com/gin-gonic/gin"
-	"github.com/rms-diego/rinha-backend-2025/cmd/worker"
+	"github.com/rms-diego/rinha-backend-2025/cmd/workers"
 	"github.com/rms-diego/rinha-backend-2025/internal/config"
 	"github.com/rms-diego/rinha-backend-2025/internal/database"
 	routes "github.com/rms-diego/rinha-backend-2025/internal/routes"
@@ -21,7 +21,7 @@ func main() {
 		panic(err.Error())
 	}
 
-	worker.Init()
+	workers.Init()
 
 	app := gin.New()
 	routes.Init(app)

@@ -1,10 +1,9 @@
 package validations
 
-import "github.com/google/uuid"
-
 type CreatePayment struct {
-	Amount        float64   `json:"amount" binding:"required"`
-	CorrelationId uuid.UUID `json:"correlationId" binding:"required" db:"correlation_id"`
+	Amount        float64
+	CorrelationId string
+	RequestedAt   string
 }
 
 type Summary struct {

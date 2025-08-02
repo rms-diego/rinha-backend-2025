@@ -6,35 +6,62 @@ import (
 	"github.com/rms-diego/rinha-backend-2025/internal/validations"
 )
 
-type PubSub interface {
-	Publish(message validations.CreatePayment)
-	Subscribe(handler func(message validations.CreatePayment))
+const (
+	DEFAULT_QUEUE  = "default"
+	FALLBACK_QUEUE = "fallback"
+)
+const MAX_MESSAGES_PER_QUEUE = 20
+
+type PubSub struct {
+	defaultMessages  chan validations.Message
+	fallbackMessages chan validations.Message
 }
 
-type pubSub struct {
-	messages chan validations.CreatePayment
-}
-
-var Queue *pubSub
-
-const MAX_MESSAGES = 100_000
+var Queue *PubSub
 
 func NewPubSub() {
-	Queue = &pubSub{
-		messages: make(chan validations.CreatePayment, MAX_MESSAGES),
+	Queue = &PubSub{
+		defaultMessages:  make(chan validations.Message, MAX_MESSAGES_PER_QUEUE),
+		fallbackMessages: make(chan validations.Message, MAX_MESSAGES_PER_QUEUE),
 	}
 }
 
-func (p *pubSub) Publish(message validations.CreatePayment) {
-	Queue.messages <- message
+func (p *PubSub) Publish(message validations.Message, queueType string) {
+	switch queueType {
+	case DEFAULT_QUEUE:
+		Queue.defaultMessages <- message
+	case FALLBACK_QUEUE:
+		Queue.fallbackMessages <- message
+	}
 }
 
-func (p *pubSub) Subscribe(handler func(message validations.CreatePayment) error) {
-	for msg := range Queue.messages {
-		fmt.Println("Processing message: ", msg.CorrelationId)
+func (p *PubSub) Subscribe(
+	defaultProcessor func(message *validations.Message, processorType string) error,
+	fallbackProcessor func(message *validations.Message, processorType string) error,
+	defaultWorkers int,
+	fallbackWorkers int,
+) {
+	// Workers default queue
+	for range defaultWorkers {
+		go func() {
+			for msg := range p.defaultMessages {
+				if err := defaultProcessor(&msg, DEFAULT_QUEUE); err != nil {
+					p.Publish(msg, FALLBACK_QUEUE)
+				}
+			}
+		}()
+	}
 
-		if err := handler(msg); err != nil {
-			continue
-		}
+	// Workers fallback queue
+	for range fallbackWorkers {
+		go func() {
+			for msg := range p.fallbackMessages {
+				if err := fallbackProcessor(&msg, FALLBACK_QUEUE); err != nil {
+					fmt.Println("Error processing message in fallback queue:", err)
+
+					continue
+				}
+			}
+		}()
 	}
 }

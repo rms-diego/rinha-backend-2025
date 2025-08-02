@@ -3,15 +3,15 @@ package service
 import (
 	"fmt"
 	"strings"
-	"time"
 
 	"github.com/doug-martin/goqu"
 	"github.com/rms-diego/rinha-backend-2025/internal/database"
 	"github.com/rms-diego/rinha-backend-2025/internal/validations"
+	"github.com/rms-diego/rinha-backend-2025/pkg/pubsub"
 )
 
 type PaymentServiceInterface interface {
-	CreatePayment(message validations.CreatePayment) error
+	CreatePayment(message *validations.CreatePayment, processedBy string) error
 	ListPaymentsSummary(from string, to string) (*validations.PaymentSummary, error)
 }
 
@@ -25,16 +25,24 @@ func NewPaymentService(database *goqu.Database) PaymentServiceInterface {
 	}
 }
 
-func (s *paymentService) CreatePayment(message validations.CreatePayment) error {
+func (s *paymentService) CreatePayment(message *validations.CreatePayment, processedBy string) error {
+	isDefaultProcessor := true
+
+	switch processedBy {
+	case pubsub.FALLBACK_QUEUE:
+		isDefaultProcessor = false
+	default:
+		isDefaultProcessor = true
+	}
+
 	sql := database.Db.From("payments").Insert(goqu.Ex{
-		"amount":        message.Amount,
-		"correlationId": message.CorrelationId,
-		"requested_at":  time.Now(),
+		"amount":               message.Amount,
+		"correlationId":        message.CorrelationId,
+		"requested_at":         message.RequestedAt,
+		"is_default_processor": isDefaultProcessor,
 	}).Sql
 
-	// Remove double quotes from the SQL string to avoid syntax errors
-	cleanSQL := sanitizeSQL(sql)
-
+	cleanSQL := strings.ReplaceAll(sql, `"`, "")
 	if _, err := database.Db.Exec(cleanSQL); err != nil {
 		return err
 	}
@@ -68,8 +76,4 @@ func (s *paymentService) ListPaymentsSummary(from string, to string) (*validatio
 			TotalAmount:   0,
 		},
 	}, nil
-}
-
-func sanitizeSQL(sql string) string {
-	return strings.ReplaceAll(sql, `"`, "")
 }

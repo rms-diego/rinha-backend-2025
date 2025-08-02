@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"github.com/joho/godotenv"
+	"github.com/rms-diego/rinha-backend-2025/pkg/pubsub"
 )
 
 type env struct {
@@ -17,6 +18,8 @@ type env struct {
 var Env *env
 
 func NewConfig() error {
+	pubsub.NewPubSub()
+
 	if err := godotenv.Load(); err != nil {
 		return err
 	}

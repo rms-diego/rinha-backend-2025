@@ -6,11 +6,12 @@ import (
 	"github.com/rms-diego/rinha-backend-2025/internal/database"
 	"github.com/rms-diego/rinha-backend-2025/internal/handlers"
 	"github.com/rms-diego/rinha-backend-2025/internal/service"
+	"github.com/rms-diego/rinha-backend-2025/pkg/pubsub"
 )
 
 func Init(app *gin.Engine) {
 	ps := service.NewPaymentService(database.Db)
-	dp := handlers.NewPaymentHandler(ps)
+	dp := handlers.NewPaymentHandler(ps, pubsub.Queue)
 
 	INSTANCE_ID := uuid.New()
 	app.GET("/payments/service-health", func(c *gin.Context) {
