@@ -51,11 +51,18 @@ func (s *paymentService) CreatePayment(message *validations.CreatePayment, proce
 }
 
 func (s *paymentService) ListPaymentsSummary(from string, to string) (*validations.PaymentSummary, error) {
-	var summary validations.Summary
+	type aggregationResult struct {
+		IsDefaultProcessor bool    `db:"is_default_processor"`
+		TotalRequests      int64   `db:"TotalRequests"`
+		TotalAmount        float64 `db:"TotalAmount"`
+	}
 
-	_, err := database.Db.
+	var results []aggregationResult
+
+	err := database.Db.
 		From("payments").
 		Select(
+			goqu.I("is_default_processor"),
 			goqu.COUNT(goqu.I("correlationid")).As("TotalRequests"),
 			goqu.COALESCE(goqu.SUM(goqu.I("amount")), 0).As("TotalAmount"),
 		).
@@ -63,17 +70,30 @@ func (s *paymentService) ListPaymentsSummary(from string, to string) (*validatio
 			goqu.I("requested_at").Gte(from),
 			goqu.I("requested_at").Lte(to),
 		).
-		ScanStruct(&summary)
+		GroupBy(goqu.I("is_default_processor")).
+		ScanStructs(&results)
 
 	if err != nil {
 		return nil, fmt.Errorf("erro ao executar query: %w", err)
 	}
 
-	return &validations.PaymentSummary{
-		Default: summary,
-		Fallback: validations.Summary{
-			TotalRequests: 0,
-			TotalAmount:   0,
-		},
-	}, nil
+	var summary validations.PaymentSummary
+
+	for _, data := range results {
+		if data.IsDefaultProcessor {
+			summary.Default = validations.Summary{
+				TotalRequests: data.TotalRequests,
+				TotalAmount:   data.TotalAmount,
+			}
+			continue
+		}
+
+		summary.Fallback = validations.Summary{
+			TotalRequests: data.TotalRequests,
+			TotalAmount:   data.TotalAmount,
+		}
+	}
+
+	return &summary, nil
+
 }

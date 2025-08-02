@@ -14,7 +14,7 @@ import (
 )
 
 type gatewayImplementation interface {
-	PaymentProcessor(*validations.Message, string) error
+	PaymentProcessor(validations.Message, string) error
 }
 
 type gateway struct {
@@ -33,7 +33,7 @@ func NewGateway(paymentService service.PaymentServiceInterface) gatewayImplement
 	}
 }
 
-func (g *gateway) PaymentProcessor(msg *validations.Message, processorType string) error {
+func (g *gateway) PaymentProcessor(msg validations.Message, processorType string) error {
 	var p string
 
 	switch processorType {

@@ -36,8 +36,8 @@ func (p *PubSub) Publish(message validations.Message, queueType string) {
 }
 
 func (p *PubSub) Subscribe(
-	defaultProcessor func(message *validations.Message, processorType string) error,
-	fallbackProcessor func(message *validations.Message, processorType string) error,
+	defaultProcessor func(message validations.Message, processorType string) error,
+	fallbackProcessor func(message validations.Message, processorType string) error,
 	defaultWorkers int,
 	fallbackWorkers int,
 ) {
@@ -45,7 +45,7 @@ func (p *PubSub) Subscribe(
 	for range defaultWorkers {
 		go func() {
 			for msg := range p.defaultMessages {
-				if err := defaultProcessor(&msg, DEFAULT_QUEUE); err != nil {
+				if err := defaultProcessor(msg, DEFAULT_QUEUE); err != nil {
 					p.Publish(msg, FALLBACK_QUEUE)
 				}
 			}
@@ -56,7 +56,7 @@ func (p *PubSub) Subscribe(
 	for range fallbackWorkers {
 		go func() {
 			for msg := range p.fallbackMessages {
-				if err := fallbackProcessor(&msg, FALLBACK_QUEUE); err != nil {
+				if err := fallbackProcessor(msg, FALLBACK_QUEUE); err != nil {
 					fmt.Println("Error processing message in fallback queue:", err)
 
 					continue
