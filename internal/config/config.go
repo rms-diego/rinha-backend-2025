@@ -8,8 +8,10 @@ import (
 )
 
 type env struct {
-	PORT         string
-	DATABASE_URL string
+	PORT                           string
+	DATABASE_URL                   string
+	PAYMENT_PROCESSOR_DEFAULT_URL  string
+	PAYMENT_PROCESSOR_FALLBACK_URL string
 }
 
 var Env *env
@@ -32,10 +34,23 @@ func NewConfig() error {
 	case os.Getenv("DATABASE_HOST") == "":
 		return fmt.Errorf("environment variable 'DATABASE_HOST' is not set")
 
+	case os.Getenv("PAYMENT_PROCESSOR_DEFAULT_URL") == "":
+		return fmt.Errorf("environment variable 'PAYMENT_PROCESSOR_DEFAULT_URL' is not set")
+
+	case os.Getenv("PAYMENT_PROCESSOR_FALLBACK_URL") == "":
+		return fmt.Errorf("environment variable 'PAYMENT_PROCESSOR_FALLBACK_URL' is not set")
+
 	default:
 		Env = &env{
-			PORT:         os.Getenv("PORT"),
-			DATABASE_URL: fmt.Sprintf("postgres://%v:%v@%v:5432/rinha_backend_2025", os.Getenv("DATABASE_USER"), os.Getenv("DATABASE_PASSWORD"), os.Getenv("DATABASE_HOST")),
+			PORT: os.Getenv("PORT"),
+			DATABASE_URL: fmt.Sprintf(
+				"postgres://%v:%v@%v:5432/rinha_backend_2025",
+				os.Getenv("DATABASE_USER"),
+				os.Getenv("DATABASE_PASSWORD"),
+				os.Getenv("DATABASE_HOST"),
+			),
+			PAYMENT_PROCESSOR_DEFAULT_URL:  os.Getenv("PAYMENT_PROCESSOR_DEFAULT_URL"),
+			PAYMENT_PROCESSOR_FALLBACK_URL: os.Getenv("PAYMENT_PROCESSOR_FALLBACK_URL"),
 		}
 		return nil
 	}
